@@ -20,7 +20,7 @@ config.keys = {
 	{
 		key = "w",
 		mods = "SUPER",
-		action = wezterm.action.CloseCurrentPane({ confirm = true }),
+		action = wezterm.action.CloseCurrentPane({ confirm = false }),
 	},
 	{
 		key = "LeftArrow",
