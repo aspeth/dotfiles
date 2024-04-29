@@ -7,6 +7,7 @@ config.font = wezterm.font("JetBrains Mono")
 config.font_size = 18
 
 config.color_scheme = "Night Owl (Gogh)"
+config.window_close_confirmation = "NeverPrompt"
 
 config.keys = {
 	{
