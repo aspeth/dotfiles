@@ -6,7 +6,13 @@ local config = {}
 config.font = wezterm.font("JetBrains Mono")
 config.font_size = 18
 
+config.inactive_pane_hsb = {
+	saturation = 0.9,
+	brightness = 0.7,
+}
+
 config.color_scheme = "Night Owl (Gogh)"
+config.default_cursor_style = "BlinkingBlock"
 config.window_close_confirmation = "NeverPrompt"
 
 config.keys = {
