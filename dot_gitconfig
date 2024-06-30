@@ -22,3 +22,7 @@
 	rebase = true
 [rerere]
 	enabled = true
+[color "branch"]
+  current = yellow reverse
+  local = yellow
+  remote = green
