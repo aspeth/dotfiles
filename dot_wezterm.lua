@@ -11,7 +11,8 @@ config.inactive_pane_hsb = {
 	brightness = 0.7,
 }
 
-config.color_scheme = "Night Owl (Gogh)"
+config.color_scheme = "Tokyo Night Moon"
+-- config.color_scheme = "Night Owl (Gogh)"
 config.default_cursor_style = "BlinkingBlock"
 config.window_close_confirmation = "NeverPrompt"
 
@@ -31,13 +32,23 @@ config.keys = {
 	},
 	{
 		key = "LeftArrow",
-		mods = "ALT|SUPER",
-		action = act.ActivatePaneDirection("Left"),
+		mods = "SHIFT|CTRL",
+		action = act.ActivateTabRelative(-1),
 	},
 	{
 		key = "RightArrow",
-		mods = "ALT|SUPER",
-		action = act.ActivatePaneDirection("Right"),
+		mods = "SHIFT|CTRL",
+		action = act.ActivateTabRelative(1),
+	},
+	{
+		key = "RightArrow",
+		mods = "SHIFT|SUPER",
+		action = act.MoveTabRelative(1),
+	},
+	{
+		key = "LeftArrow",
+		mods = "SHIFT|SUPER",
+		action = act.MoveTabRelative(-1),
 	},
 	{
 		key = "UpArrow",
@@ -48,6 +59,11 @@ config.keys = {
 		key = "DownArrow",
 		mods = "ALT|SUPER",
 		action = act.ActivatePaneDirection("Down"),
+	},
+	{
+		key = "r",
+		mods = "CMD|SHIFT",
+		action = wezterm.action.ReloadConfiguration,
 	},
 }
 
