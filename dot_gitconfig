@@ -26,3 +26,5 @@
   current = yellow reverse
   local = yellow
   remote = green
+[format]
+	pretty = %Cblue%h%Creset %Cgreen[%ar]%Creset %Cred(%an)%Creset %s
