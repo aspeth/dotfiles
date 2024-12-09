@@ -12,9 +12,65 @@ themes {
 		black "#393552"
 		white "#e0def4"
 	}
+  catppuccin-macchiato {
+    bg "#5b6078" // Surface2
+    fg "#cad3f5" // Text
+    red "#ed8796"
+    green "#a6da95"
+    blue "#8aadf4"
+    yellow "#eed49f"
+    magenta "#f5bde6" // Pink
+    orange "#f5a97f" // Peach
+    cyan "#91d7e3" // Sky
+    black "#1e2030" // Mantle
+    white "#cad3f5" // Text
+  }
+  duskfox {
+    bg "#433c59"
+    fg "#e0def4"
+    red "#eb6f92"
+    green "#a3be8c"
+    blue "#569fba"
+    yellow "#f6c177"
+    magenta "#c4a7e7"
+    orange "#ea9a97"
+    cyan "#9ccfd8"
+    black "#373354"
+    white "#cdcbe0"
+  }
+  tokyonight_moon {
+    fg "#c8d3f5"
+    bg "#2f334d"
+    // Black should match the terminal background color
+    // This ensures the top and bottom bars are transparent
+    black "#222436"
+    red "#ff757f"
+    green "#c3e88d"
+    yellow "#ffc777"
+    blue "#82aaff"
+    magenta "#c099ff"
+    cyan "#86e1fc"
+    white "#828bb8"
+    orange "#ff966c"
+  }
+  tokyonight_storm {
+    fg "#c0caf5"
+    bg "#292e42"
+    // Black should match the terminal background color
+    // This ensures the top and bottom bars are transparent
+    black "#24283b"
+    red "#f7768e"
+    green "#9ece6a"
+    yellow "#e0af68"
+    blue "#7aa2f7"
+    magenta "#bb9af7"
+    cyan "#7dcfff"
+    white "#a9b1d6"
+    orange "#ff9e64"
+  }
 }
 
-theme "rose-pine-moon"
+theme "tokyonight_moon"
 
 keybinds clear-defaults=true {
     locked {
