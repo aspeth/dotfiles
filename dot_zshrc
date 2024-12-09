@@ -4,12 +4,23 @@
 # Set up mySQL
 export PATH="/opt/homebrew/opt/mysql@8.0/bin:$PATH"
 
-# Fuzzy finder
-# [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# Set up fzf key bindings and fuzzy completion
+source <(fzf --zsh)
+
+export EDITOR="nvim"
 
 export PATH="$HOME/local/bin:$PATH"
 export PATH="/Users/andrew.speth/.local/bin:$PATH"
 
+# aliases
+alias ecs='~/aws_ecs_script.sh' # usage - $ ecs <cluster> <profile>
+alias dc='docker-compose'
+alias du='cd ~/engineering/durin'
+alias co='cd ~/engineering/cobalt2'
+
 eval "$(starship init zsh)"
 
 eval "$(atuin init zsh)"
+
+# set up mise en place
+# eval "$(/opt/homebrew/bin/mise activate zsh)"
