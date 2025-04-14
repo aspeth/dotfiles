@@ -1,0 +1,42 @@
+// Zed keymap
+//
+// For information on binding keys, see the Zed
+// documentation: https://zed.dev/docs/key-bindings
+//
+// To see the default key bindings run `zed: open default keymap`
+// from the command palette.
+[
+  {
+    "context": "Editor && vim_mode == normal",
+    "bindings": {
+      "ctrl-h": "workspace::ActivatePaneLeft",
+      "ctrl-j": "workspace::ActivatePaneDown",
+      "ctrl-k": "workspace::ActivatePaneUp",
+      "ctrl-l": "workspace::ActivatePaneRight",
+      "g r": "editor::FindAllReferences",
+      "g i": "editor::GoToImplementation",
+      "g n": "pane::ActivateNextItem",
+      "g p": "pane::ActivatePreviousItem",
+      "m m": "vim::Matching",
+      "space f": "file_finder::Toggle",
+      "space s": "project_symbols::Toggle",
+      "space c": "vim::ToggleComments",
+      "space d": ["workspace::SendKeystrokes", "shift-cmd-m"],
+      "space /": "workspace::NewSearch",
+      "space r": "editor::Rename",
+      "space x": "editor::ToggleCodeActions",
+      "space q": "pane::CloseAllItems",
+      "ctrl-i": "pane::SwapItemLeft",
+      "ctrl-o": "pane::SwapItemRight"
+    }
+  },
+  {
+    "context": "Terminal",
+    "bindings": {
+      "ctrl-h": "workspace::ActivatePaneLeft",
+      "ctrl-j": "workspace::ActivatePaneDown",
+      "ctrl-k": "workspace::ActivatePaneUp",
+      "ctrl-l": "workspace::ActivatePaneRight"
+    }
+  }
+]

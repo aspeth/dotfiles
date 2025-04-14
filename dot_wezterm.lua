@@ -21,7 +21,8 @@ config.window_padding = {
 	bottom = 0,
 }
 
-config.color_scheme = "Rosé Pine Moon (Gogh)"
+-- config.color_scheme = "Rosé Pine Moon (Gogh)"
+config.color_scheme = "Tokyo Night Moon"
 config.default_cursor_style = "BlinkingBlock"
 config.window_close_confirmation = "NeverPrompt"
 

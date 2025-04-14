@@ -25,6 +25,19 @@ themes {
     black "#1e2030" // Mantle
     white "#cad3f5" // Text
   }
+  catppuccin-mocha {
+    bg "#585b70" // Surface2
+    fg "#cdd6f4" // Text
+    red "#f38ba8"
+    green "#a6e3a1"
+    blue "#89b4fa"
+    yellow "#f9e2af"
+    magenta "#f5c2e7" // Pink
+    orange "#fab387" // Peach
+    cyan "#89dceb" // Sky
+    black "#181825" // Mantle
+    white "#cdd6f4" // Text
+  }
   duskfox {
     bg "#433c59"
     fg "#e0def4"
@@ -67,6 +80,19 @@ themes {
     cyan "#7dcfff"
     white "#a9b1d6"
     orange "#ff9e64"
+  }
+  cyberdream {
+    bg "#16181a"
+    fg "#ffffff"
+    black "#7b8496"
+    red "#ff6e5e"
+    green "#5eff6c"
+    yellow "#f1ff5e"
+    blue "#5ea1ff"
+    magenta "#ff5ef1"
+    cyan "#5ef1ff"
+    white "#ffffff"
+    orange "#ffbd5e"
   }
 }
 
