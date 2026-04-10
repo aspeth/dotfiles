@@ -1,23 +1,81 @@
-# Set up mySQL
-export PATH="/opt/homebrew/opt/mysql@8.0/bin:$PATH"
+# PATH
+export PATH="/Users/aspeth/.local/share/mise/installs/go/1.23.0/bin:$PATH"
+export PATH="$PATH:$HOME/go/bin"
+export PATH="$HOME/local/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$PATH:/Applications/Obsidian.app/Contents/MacOS"
 
-# Set up fzf key bindings and fuzzy completion
-source <(fzf --zsh)
+# Aliases
+alias tf="terraform"
+alias nvim-old='NVIM_APPNAME=nvim-lazyvim nvim'
 
+# Editor
 export EDITOR="nvim"
 
-export PATH="$HOME/local/bin:$PATH"
-export PATH="/Users/andrew.speth/.local/bin:$PATH"
+# fzf
+source <(fzf --zsh)
 
-# aliases
-alias ecs='~/aws_ecs_script.sh' # usage - $ ecs <cluster> <profile>
-alias dc='docker-compose'
-alias du='cd ~/engineering/durin'
-alias co='cd ~/engineering/cobalt2'
+# Vi mode
+bindkey -v
+export KEYTIMEOUT=1
 
+# Scrollback helper
+sb() { nvim "${1:-$(pbpaste)}"; }
+
+# Lazygit with dir tracking
+lg() {
+  export LAZYGIT_NEW_DIR_FILE=~/.lazygit/newdir
+  lazygit "$@"
+  if [ -f $LAZYGIT_NEW_DIR_FILE ]; then
+    cd "$(cat $LAZYGIT_NEW_DIR_FILE)"
+    rm -f $LAZYGIT_NEW_DIR_FILE > /dev/null
+  fi
+}
+
+# Prompt mise install for missing tools
+function prompt_mise_install() {
+  MISE_OUTPUT=$(mise ls --missing 2>&1)
+
+  if echo "$MISE_OUTPUT" | grep -q "are not trusted"; then
+    UNTRUSTED_CONFIG=$(echo "$MISE_OUTPUT" | grep -oP "(?<=Config files in ).*(?= are not trusted)" | head -1)
+    print -P "${YELLOW}Untrusted mise config detected:${RESET}"
+    print -P "${YELLOW}$UNTRUSTED_CONFIG${RESET}"
+    print -nP "${BLUE}Would you like to trust this config? [y/N]: ${RESET}"
+    read -r REPLY
+    if [[ "$REPLY" =~ ^[Yy]$ ]]; then
+      echo -P "${GREEN}Trusting config...${RESET}"
+      mise trust
+      MISE_OUTPUT=$(mise ls --missing 2>&1)
+    else
+      echo -P "${RED}Skipped trusting config.${RESET}"
+      return
+    fi
+  fi
+
+  MISSING_TOOLS=$(echo "$MISE_OUTPUT" | grep -v "ERROR" | grep -v "^$")
+
+  if [[ -n "$MISSING_TOOLS" ]]; then
+    print -P "${YELLOW}Missing tools detected:${RESET}"
+    print -P "${YELLOW}$MISSING_TOOLS${RESET}"
+    print -nP "${BLUE}Would you like to install dependencies? [y/N]: ${RESET}"
+    read -r REPLY
+    if [[ "$REPLY" =~ ^[Yy]$ ]]; then
+      echo -P "${GREEN}Installing dependencies...${RESET}"
+      mise install
+    else
+      echo -P "${RED}Skipped installing dependencies.${RESET}"
+    fi
+  fi
+}
+
+# Tool initialization
 eval "$(starship init zsh)"
-
 eval "$(atuin init zsh)"
-
-# set up mise en place
 eval "$(/opt/homebrew/bin/mise activate zsh)"
+export MISE_ENV_FILE=.env
+eval "$(direnv hook zsh)"
+
+unset KITTY_PUBLIC_KEY
+
+# Source private/company-specific config
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local

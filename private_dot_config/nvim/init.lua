@@ -140,9 +140,9 @@ local kitty_map = {
   ["catppuccin-frappe"]    = kitty_themes_dir .. "/catppuccin-frappe.conf",
   ["catppuccin-latte"]     = kitty_themes_dir .. "/catppuccin-latte.conf",
   -- kanagawa
-  kanagawa         = pack_dir .. "/kanagawa.nvim/extras/kitty/kanagawa.conf",
-  ["kanagawa-dragon"] = pack_dir .. "/kanagawa.nvim/extras/kitty/kanagawa_dragon.conf",
-  ["kanagawa-lotus"]  = pack_dir .. "/kanagawa.nvim/extras/kitty/kanagawa_light.conf",
+  kanagawa            = kitty_themes_dir .. "/kanagawa.conf",
+  ["kanagawa-dragon"] = kitty_themes_dir .. "/kanagawa-dragon.conf",
+  ["kanagawa-lotus"]  = kitty_themes_dir .. "/kanagawa-lotus.conf",
   -- rose-pine
   ["rose-pine"]      = kitty_themes_dir .. "/rose-pine.conf",
   ["rose-pine-moon"] = kitty_themes_dir .. "/rose-pine-moon.conf",
@@ -164,13 +164,29 @@ local saved = vim.fn.stdpath("state") .. "/colorscheme"
 local theme = vim.fn.filereadable(saved) == 1 and vim.fn.readfile(saved)[1] or "terafox"
 set_theme(theme)
 
--- Theme picker: <leader>ct
+-- Theme picker: <leader>ct (live preview as you navigate)
 vim.keymap.set("n", "<leader>ct", function()
   local themes = vim.tbl_keys(kitty_map)
   table.sort(themes)
-  vim.ui.select(themes, { prompt = "Select theme:" }, function(choice)
-    if choice then set_theme(choice) end
-  end)
+  local saved_theme = theme
+  require("fzf-lua").fzf_exec(themes, {
+    prompt = "Theme> ",
+    fzf_opts = { ["--layout"] = "reverse", ["--bind"] = "ctrl-j:down,ctrl-k:up" },
+    actions = {
+      ["default"] = function(selected)
+        if selected[1] then set_theme(selected[1]) end
+      end,
+      ["esc"] = function()
+        set_theme(saved_theme)
+      end,
+    },
+    fn_selected = function(selected)
+      -- preview on cursor move
+      if selected and selected[1] then
+        set_theme(selected[1]:match("[^%s]+"))
+      end
+    end,
+  })
 end, { desc = "Change theme (nvim + kitty)" })
 
 -- Indent guides (colored lines, no background)
@@ -236,17 +252,18 @@ vim.api.nvim_create_autocmd("VimLeavePre", {
   end,
 })
 vim.keymap.set("n", "<leader>sr", "<cmd>source ~/.local/state/nvim/session.vim<cr>", { desc = "Restore session" })
+vim.keymap.set("n", "<leader>rr", function()
+  vim.cmd("mksession! ~/.local/state/nvim/session.vim")
+  vim.system({ "kitty", "@", "send-text", "--match", "id:" .. os.getenv("KITTY_WINDOW_ID"), "nvim -S ~/.local/state/nvim/session.vim\n" })
+  vim.cmd("qa!")
+end, { desc = "Restart nvim with session" })
 
--- Window splits and close
-vim.keymap.set("n", "<leader>sv", "<cmd>vsplit<cr>", { desc = "Vertical split" })
-vim.keymap.set("n", "<leader>sh", "<cmd>split<cr>", { desc = "Horizontal split" })
-vim.keymap.set("n", "<leader>q", function()
-  if #vim.api.nvim_list_wins() > 1 then
-    vim.cmd("close")
-  else
-    vim.cmd("quit")
-  end
-end, { desc = "Close window or quit" })
+-- Window management (<leader>w prefix)
+vim.keymap.set("n", "<leader>wv", "<cmd>vsplit<cr>", { desc = "Vertical split" })
+vim.keymap.set("n", "<leader>wh", "<cmd>split<cr>", { desc = "Horizontal split" })
+vim.keymap.set("n", "<leader>wc", "<cmd>close<cr>", { desc = "Close window" })
+vim.keymap.set("n", "<leader>wo", "<cmd>only<cr>", { desc = "Close other windows" })
+vim.keymap.set("n", "<leader>q", "<cmd>qa<cr>", { desc = "Quit nvim" })
 
 -- Gitsigns
 require("gitsigns").setup({
