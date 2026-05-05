@@ -2,8 +2,6 @@
 vim.pack.add({ "https://github.com/EdenEast/nightfox.nvim" })
 vim.pack.add({ "https://github.com/ibhagwan/fzf-lua" })
 vim.pack.add({ "https://github.com/stevearc/oil.nvim" })
-vim.pack.add({ "https://github.com/lukas-reineke/indent-blankline.nvim" })
--- indent-rainbowline removed, using ibl with colored guides instead
 vim.pack.add({ "https://github.com/mrjones2014/smart-splits.nvim" })
 vim.pack.add({ "https://github.com/mikesmithgh/kitty-scrollback.nvim" })
 vim.pack.add({ "https://github.com/lewis6991/gitsigns.nvim" })
@@ -17,6 +15,9 @@ vim.pack.add({ "https://github.com/folke/tokyonight.nvim" })
 vim.pack.add({ "https://github.com/catppuccin/nvim" })
 vim.pack.add({ "https://github.com/rebelot/kanagawa.nvim" })
 vim.pack.add({ "https://github.com/rose-pine/neovim" })
+vim.pack.add({ "https://github.com/folke/snacks.nvim" })
+vim.pack.add({ "https://github.com/nvim-lua/plenary.nvim" })
+vim.pack.add({ { src = "https://github.com/ThePrimeagen/harpoon", version = "harpoon2" } })
 
 -- Leader
 vim.g.mapleader = " "
@@ -40,10 +41,28 @@ vim.opt.smartcase = true
 vim.opt.undofile = true
 vim.opt.swapfile = false
 vim.opt.sessionoptions = "buffers,curdir,folds,tabpages,winsize"
+vim.opt.autoread = true
 -- statusline handled by lualine
+
+-- Auto-reload buffers when files change on disk (e.g. agent edits)
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
+  pattern = "*",
+  callback = function()
+    if vim.fn.mode() ~= "c" and vim.fn.bufexists("[Command Line]") == 0 then
+      vim.cmd("checktime")
+    end
+  end,
+})
+vim.api.nvim_create_autocmd("FileChangedShellPost", {
+  callback = function()
+    vim.notify("File changed on disk, buffer reloaded", vim.log.levels.INFO)
+  end,
+})
 
 -- Completion
 vim.opt.completeopt = "menuone,noselect,popup,fuzzy"
+vim.opt.pumborder = "rounded"
+vim.opt.pummaxwidth = 50
 
 -- Tab: accept inline completion (Copilot), navigate completion menu, or insert tab
 vim.keymap.set("i", "<Tab>", function()
@@ -93,6 +112,7 @@ vim.lsp.enable({
   "jsonls",
   "yamlls",
   "copilot",
+  "buf_ls",
 })
 
 -- LspAttach: enable completion + inline completion (Copilot)
@@ -107,6 +127,14 @@ vim.api.nvim_create_autocmd("LspAttach", {
 
     if client:supports_method("textDocument/inlineCompletion") then
       vim.lsp.inline_completion.enable(true, { bufnr = bufnr })
+    end
+
+    if client:supports_method("textDocument/documentColor") then
+      vim.lsp.document_color.enable(true, { bufnr = bufnr })
+    end
+
+    if client:supports_method("textDocument/linkedEditingRange") then
+      vim.lsp.linked_editing_range.enable(true, { bufnr = bufnr })
     end
   end,
 })
@@ -153,8 +181,9 @@ local function set_theme(name)
   vim.cmd.colorscheme(name)
   vim.api.nvim_set_hl(0, "WinSeparator", { fg = "#4e5157" })
   local kitty_conf = kitty_map[name]
-  if kitty_conf and vim.fn.filereadable(kitty_conf) == 1 then
-    vim.system({ "kitty", "@", "set-colors", "--all", "--configured", kitty_conf })
+  local kitty_socket = os.getenv("KITTY_LISTEN_ON")
+  if kitty_conf and vim.fn.filereadable(kitty_conf) == 1 and kitty_socket then
+    vim.system({ "kitty", "@", "--to", kitty_socket, "set-colors", "--all", "--configured", kitty_conf })
   end
   vim.fn.writefile({ name }, vim.fn.stdpath("state") .. "/colorscheme")
 end
@@ -189,25 +218,6 @@ vim.keymap.set("n", "<leader>ct", function()
   })
 end, { desc = "Change theme (nvim + kitty)" })
 
--- Indent guides (colored lines, no background)
-local ibl_hooks = require("ibl.hooks")
-ibl_hooks.register(ibl_hooks.type.HIGHLIGHT_SETUP, function()
-  vim.api.nvim_set_hl(0, "RainbowRed", { fg = "#E06C75" })
-  vim.api.nvim_set_hl(0, "RainbowYellow", { fg = "#E5C07B" })
-  vim.api.nvim_set_hl(0, "RainbowBlue", { fg = "#61AFEF" })
-  vim.api.nvim_set_hl(0, "RainbowOrange", { fg = "#D19A66" })
-  vim.api.nvim_set_hl(0, "RainbowGreen", { fg = "#98C379" })
-  vim.api.nvim_set_hl(0, "RainbowViolet", { fg = "#C678DD" })
-  vim.api.nvim_set_hl(0, "RainbowCyan", { fg = "#56B6C2" })
-end)
-require("ibl").setup({
-  indent = {
-    highlight = { "RainbowRed", "RainbowYellow", "RainbowBlue", "RainbowOrange", "RainbowGreen", "RainbowViolet", "RainbowCyan" },
-    char = "│",
-  },
-  scope = { enabled = false },
-})
-
 -- Oil (file explorer)
 require("oil").setup()
 vim.keymap.set("n", "-", "<cmd>Oil<cr>", { desc = "Open parent directory" })
@@ -235,7 +245,6 @@ end, { desc = "Lazygit" })
 vim.keymap.set("n", "grr", "<cmd>FzfLua lsp_references ignore_current_line=true<cr>", { desc = "References" })
 vim.keymap.set("n", "gy", "<cmd>FzfLua lsp_typedefs<cr>", { desc = "Goto Type Definition" })
 
--- Smart splits (kitty integration)
 require("smart-splits").setup({
   multiplexer_integration = "kitty",
 })
@@ -261,9 +270,42 @@ end, { desc = "Restart nvim with session" })
 -- Window management (<leader>w prefix)
 vim.keymap.set("n", "<leader>wv", "<cmd>vsplit<cr>", { desc = "Vertical split" })
 vim.keymap.set("n", "<leader>wh", "<cmd>split<cr>", { desc = "Horizontal split" })
-vim.keymap.set("n", "<leader>wc", "<cmd>close<cr>", { desc = "Close window" })
+vim.keymap.set("n", "<leader>wd", "<cmd>close<cr>", { desc = "Close window" })
 vim.keymap.set("n", "<leader>wo", "<cmd>only<cr>", { desc = "Close other windows" })
 vim.keymap.set("n", "<leader>q", "<cmd>qa<cr>", { desc = "Quit nvim" })
+-- Snacks
+vim.api.nvim_set_hl(0, "SnacksIndent1", { fg = "#E06C75" })
+vim.api.nvim_set_hl(0, "SnacksIndent2", { fg = "#E5C07B" })
+vim.api.nvim_set_hl(0, "SnacksIndent3", { fg = "#61AFEF" })
+vim.api.nvim_set_hl(0, "SnacksIndent4", { fg = "#D19A66" })
+vim.api.nvim_set_hl(0, "SnacksIndent5", { fg = "#98C379" })
+vim.api.nvim_set_hl(0, "SnacksIndent6", { fg = "#C678DD" })
+vim.api.nvim_set_hl(0, "SnacksIndent7", { fg = "#56B6C2" })
+require("snacks").setup({
+  scratch = {
+    ft = "markdown",
+    autowrite = true,
+  },
+  indent = {
+    enabled = true,
+    indent = {
+      char = "│",
+      hl = { "SnacksIndent1", "SnacksIndent2", "SnacksIndent3", "SnacksIndent4", "SnacksIndent5", "SnacksIndent6", "SnacksIndent7" },
+    },
+    scope = { enabled = false },
+    chunk = { enabled = false },
+  },
+  bigfile = { enabled = true },
+  notifier = { enabled = true },
+})
+vim.keymap.set("n", "<leader>.", function() Snacks.scratch() end, { desc = "Toggle scratch buffer" })
+vim.keymap.set("n", "<leader>S", function() Snacks.scratch.select() end, { desc = "Select scratch buffer" })
+
+-- Harpoon
+local harpoon = require("harpoon")
+harpoon:setup()
+vim.keymap.set("n", "<leader>h", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end, { desc = "Harpoon menu" })
+vim.keymap.set("n", "<leader>H", function() harpoon:list():add() end, { desc = "Harpoon add file" })
 
 -- Gitsigns
 require("gitsigns").setup({
